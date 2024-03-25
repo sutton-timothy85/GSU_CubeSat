@@ -1,8 +1,8 @@
 import RPi.GPIO as GPIO
 import time
-GPIO.setmode(GPIO.BCM)
-
-pin = 18
+GPIO.setmode(GPIO.BOARD)
+#GPIO 22
+pin = 15
 
 
 def on():

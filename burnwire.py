@@ -13,7 +13,7 @@ def off():
         GPIO.setup(pin, GPIO.IN)
 
 
-while (1):
+def activate():
         on()
         time.sleep(1)
         off()

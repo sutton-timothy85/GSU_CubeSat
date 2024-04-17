@@ -1,12 +1,18 @@
 import time
 import board
 import burnwire
+import reaction_control as RC
 import adafruit_mpl3115a2
 import adafruit_icm20x
 import adafruit_mcp9808
 from picamera2 import Picamera2, Preview
+from digi.xbee.devices import XBeeDevice
 activated = False
 
+PORT = "/dev/ttyUSB0"
+BAUD_RATE = 9600
+xbee = XBeeDevice(PORT,BAUD_RATE )
+xbee.open()
 i2c = board.I2C()
 picam = Picamera2()
 altimeter = adafruit_mpl3115a2.MPL3115A2(i2c)
@@ -14,8 +20,22 @@ imu = adafruit_icm20x.ICM20948(i2c)
 temp = adafruit_mcp9808.MCP9808(i2c)
 picam.start()
 
+
+
 altimeter.sealevel_pressure = 1022.5
 
+def receive(xbee_message):
+
+    address = xbee_message.remote_device.get_64bit_addr()
+    data = xbee_message.data.decode("utf8")
+    print("Received data from %s: %s" % (address, data))
+    return data
+
+def system_health():
+
+    temp_RW = temp.temperature
+
+    
 def collect_data():
     temp_RW = temp.temperature
     acceleration = imu.acceleration
@@ -28,15 +48,12 @@ def collect_data():
 
 def capture_image():
     picam.capture_file("image")
-
+    #code for sending image here
 def deliver(data):
-    xbee = 0
-    #send data to xbee
 
-    ##if image file exisit:
-    #Perform undetermined logic
+    xbee.send_data_broadcast(data)
 
-def burnwire():
+def activate_burnwire():
 
     
     burnwire.activate()
@@ -46,11 +63,30 @@ def main():
 
     try:
         #Xbee listen for message
-        message = "placeholder"
+        message = receive()
 
-
+        if (message == "collect data"):
+            collect_data()
+            capture_image()
+        elif (message == "burn wire"):
+            if (activated == True):
+                #Notify of previous actuation. confirm choice
+                bw_warning = "Burn wire already actuated"
+                deliver(bw_warning)
+            else:
+                activate_burnwire()
+        elif message == "status":
+            system_health()
+        elif message == "reaction control":
+            RC.reaction_contol()
+        else:
+            UE_warning = "Unknown Command"
+            deliver(UE_warning)
 
 
     except KeyboardInterrupt:
         picam.close()
+        xbee.close()
         print("Shutting Down")
+
+collect_data()

@@ -15,7 +15,9 @@ def off():
 
 def activate():
         on()
-        time.sleep(1)
+        time.sleep(5)
         off()
         time.sleep(1)
+
+#activate() #For manual actuation
 

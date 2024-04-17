@@ -11,7 +11,7 @@ activated = False
 
 PORT = "/dev/ttyUSB0"
 BAUD_RATE = 9600
-xbee = XBeeDevice(PORT,BAUD_RATE )
+xbee = XBeeDevice(PORT,BAUD_RATE)
 xbee.open()
 i2c = board.I2C()
 picam = Picamera2()
@@ -20,9 +20,21 @@ imu = adafruit_icm20x.ICM20948(i2c)
 temp = adafruit_mcp9808.MCP9808(i2c)
 picam.start()
 
-
-
+#Set parameters for operation
+Norm_AT = [0, 0, 0] #Placeholders
 altimeter.sealevel_pressure = 1022.5
+
+def reaction_control():
+
+    #For each command run reaction control sequence for 10 seconds
+    t_end = time.time() + 0
+    while time.time() < t_end:
+        current_atitude = list(imu.gyro)
+        Z = float(current_atitude[2])  # Extracting the third value (index 2) and converting to float
+        print(Z)
+    
+    
+
 
 def receive(xbee_message):
 
@@ -49,13 +61,13 @@ def collect_data():
 def capture_image():
     picam.capture_file("image")
     #code for sending image here
+
 def deliver(data):
 
     xbee.send_data_broadcast(data)
 
 def activate_burnwire():
 
-    
     burnwire.activate()
     activated == True
 
@@ -82,7 +94,6 @@ def main():
         else:
             UE_warning = "Unknown Command"
             deliver(UE_warning)
-
 
     except KeyboardInterrupt:
         picam.close()

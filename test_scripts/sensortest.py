@@ -19,3 +19,7 @@ altitude = altimeter.altitude
 
 data = [temp_RW, acceleration, atitude, altitude]
 print(str(data))
+
+current_atitude = list(imu.gyro)
+Z = float(current_atitude[2])  # Extracting the third value (index 2) and converting to float
+print(Z)

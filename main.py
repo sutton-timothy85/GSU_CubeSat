@@ -16,7 +16,7 @@ PORT = "/dev/ttyUSB0"
 BAUD_RATE = 9600
 xbee = XBeeDevice(PORT,BAUD_RATE)
 xbee.open()
-xbee.set_sync_ops_timeout(10)
+xbee.set_sync_ops_timeout(20)
 
 GPIO.setup(18, GPIO.OUT)
 GPIO.setup(13, GPIO.OUT) 
@@ -70,14 +70,19 @@ def system_health():
 
     
 def collect_data():
-    temp_RW = temp.temperature
     acceleration = imu.acceleration
     atitude = imu.gyro
     altitude = altimeter.altitude
-
-    data = str([temp_RW, acceleration, atitude, altitude])
-    print(data)
+    data = f"Accel {acceleration}"
+    time.sleep(1)
     deliver(data)
+    data = f"alt {altitude}"
+    time.sleep(3)
+    deliver(data)
+    data = f"gyro {atitude}"
+    time.sleep(3)
+    deliver(data)
+
 
 
 def capture_image():
@@ -104,9 +109,9 @@ def main():
                     message = message.data.decode()
                     print(message)
                     if (message == "collect data"):
-                        deliver("Collecting Data")
+                        #deliver("Collecting Data")
                         collect_data()
-                        capture_image()
+                        #capture_image()
                     elif (message == "burn wire"):
                         if (activated == True):
                             #Notify of previous actuation. confirm choice
@@ -118,6 +123,10 @@ def main():
                         system_health()
                     elif message == "reaction control":
                         RC.reaction_contol()
+                    elif message == "check":
+                        deliver("System is functioning :)")
+                    elif message == "shutdown":
+                        break
                     else:
                         UE_warning = "Unknown Command"
                         deliver(UE_warning)

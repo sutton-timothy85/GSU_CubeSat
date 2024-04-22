@@ -1,16 +1,29 @@
-import RPi.GPIO as GPIO  # Imports the standard Raspberry Pi GPIO library
-from time import sleep   # Imports sleep (aka wait or pause) into the program
+import time
+import board
+import pwmio
 
-def cw(servo):
+servo = pwmio.PWMOut(board.D18, frequency=50)
 
-    servo.ChangeDutyCycle(0.9)
-    sleep(5)
-    servo.stop(0)
+def servo_duty_cycle(pulse_ms, frequency=50):
+    period_ms = 1.0 / frequency * 1000.0
+    duty_cycle = int(pulse_ms / (period_ms / 65535.0))
+    return duty_cycle
 
-def ccw(servo):
-    servo.ChangeDutyCycle(40)
-    sleep(5)
-    servo.stop(0)
+
+def cw():
+
+# Create a function to simplify setting PWM duty cycle for the servo:
+    servo.duty_cycle = servo_duty_cycle(1.0)
+
+
+    # p2 = GPIO.PWM(12, 50)     # Sets up pin 11 as a PWM pin
+    # p2.start(0)               # Starts running PWM on the pin an sets it to 0
+    # p2.ChangeDutyCycle(17.5)     # Changes the pulse width to 3 (so moves the p2)
+    # sleep(12)  
+# def ccw():
+#     p2.ChangeDutyCycle(40)
+#     sleep(5)
+#     p2.stop(0)
 
 
 
@@ -19,8 +32,8 @@ def ccw(servo):
 # GPIO.setup(18, GPIO.OUT)
 # GPIO.setup(13, GPIO.OUT) 
 
-# X_servo = GPIO.PWM(18, 50)
-# Z_servo = GPIO.PWM(13, 50)
+# X_p2 = GPIO.PWM(18, 50)
+# Z_p2 = GPIO.PWM(13, 50)
 
-# X_servo.start(0)
-# Z_servo.start(0)
+# X_p2.start(0)
+# Z_p2.start(0)

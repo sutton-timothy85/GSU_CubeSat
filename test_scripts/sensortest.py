@@ -14,11 +14,13 @@ altimeter.sealevel_pressure = 1022.5
 temp_RW = temp.temperature
 acceleration = imu.acceleration
 atitude = imu.gyro
+mag = imu.magnetic
 altitude = altimeter.altitude
 
 
 data = [temp_RW, acceleration, atitude, altitude]
-print(str(data))
+
+print(str(magne))
 
 current_atitude = list(imu.gyro)
 Z = float(current_atitude[2])  # Extracting the third value (index 2) and converting to float

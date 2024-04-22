@@ -1,0 +1,3 @@
+import board
+
+dir(board)

@@ -10,26 +10,15 @@ from time import sleep   # Imports sleep (aka wait or pause) into the program
 from picamera2 import Picamera2, Preview
 from digi.xbee.devices import XBeeDevice
 
-#GPIO.setmode(GPIO.BOARD)
-
 PORT = "/dev/ttyUSB0"
 BAUD_RATE = 9600
 xbee = XBeeDevice(PORT,BAUD_RATE)
 xbee.open()
 xbee.set_sync_ops_timeout(20)
 
-GPIO.setup(18, GPIO.OUT)
-GPIO.setup(13, GPIO.OUT) 
-
-X_servo = GPIO.PWM(18, 50)
-Z_servo = GPIO.PWM(13, 50)
-
-X_servo.start(0)
-Z_servo.start(0)
+GPIO.setup(12, GPIO.OUT)
 
 activated = False
-
-
 
 i2c = board.I2C()
 #picam = Picamera2()
@@ -46,16 +35,22 @@ Norm_AT = [0, 0, 0] #Placeholders
 altimeter.sealevel_pressure = 1022.5
 
 def reaction_control():
+    RC.cw()
+    time.sleep(5)
+    #For each command run raction control sequence for 10 seconds
+    # t_end = time.time() + 0
+    # while time.time() < t_end:
+    #     current_atitude = list(imu.gyro)
+    #     X = float(current_atitude[0])
+    #     Y = float(current_atitude[1])
+    #     Z = float(current_atitude[2])  # Extracting the third value (index 2) and converting to float
 
-    #For each command run reaction control sequence for 10 seconds
-    t_end = time.time() + 0
-    while time.time() < t_end:
-        current_atitude = list(imu.gyro)
-        X = float(current_atitude[0])
-        Y = float(current_atitude[1])
-        Z = float(current_atitude[2])  # Extracting the third value (index 2) and converting to float
-    
-        
+    #     if Z >= 0.2:
+    #         RC.ccw(Z_servo)
+    #     elif Z <= -0.2:
+    #         RC.cw(Z_servo)
+    #     else:
+    #         print("no correction")  
 
 def receive(xbee_message):
 
@@ -97,9 +92,9 @@ def deliver(data):
 def activate_burnwire():
 
     burnwire.activate()
-    activated == True
 
 def main():
+
     deliver("System Running!")
     try:
         #Xbee listen for message
@@ -113,16 +108,15 @@ def main():
                         collect_data()
                         #capture_image()
                     elif (message == "burn wire"):
-                        if (activated == True):
-                            #Notify of previous actuation. confirm choice
-                            bw_warning = "Burn wire already actuated"
-                            deliver(bw_warning)
-                        else:
+                            deliver("Activating Burn Wire System")
                             activate_burnwire()
+                            deliver("Done!")
                     elif message == "status":
                         system_health()
                     elif message == "reaction control":
-                        RC.reaction_contol()
+                        deliver("Correcting Atitude")
+                        reaction_control()
+                        deliver("Done")
                     elif message == "check":
                         deliver("System is functioning :)")
                     elif message == "shutdown":

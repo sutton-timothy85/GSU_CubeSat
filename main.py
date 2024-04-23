@@ -36,46 +36,54 @@ Norm_AT = [0, 0, 0] #Placeholders
 altimeter.sealevel_pressure = 1022.5
 
 def reaction_control():
-    RC.cw()
-    time.sleep(5)
-    t_end = time.time() + 0
+ 
+    t_end = time.time() + 10
     while time.time() < t_end:
         current_atitude = list(imu.gyro)
-        X = float(current_atitude[0])
-        Y = float(current_atitude[1])
         Z = float(current_atitude[2])  # Extracting the third value (index 2) and converting to float
-
+        #deliver(f"Z acceleration {Z}")
         if Z >= 0.2:
+            #deliver("Rotating Servo CCW")
+            print("ccw")
             RC.ccw()
+            time.sleep(0.01)
+            RC.off()
+
         elif Z <= -0.2:
+            #deliver("Rotating Servo CW")
+            print("cw")  
             RC.cw()
+            time.sleep(0.01)
+            RC.off()
         else:
+            #deliver("Below Reaction Threshold")
             print("no correction")  
 
-def receive(xbee_message):
-
-    address = xbee_message.remote_device.get_64bit_addr()
-    data = xbee_message.data.decode("utf8")
-    print("Received data from %s: %s" % (address, data))
-    return data
 
 def system_health():
-
+    temp_RPi = altimeter.temperature
+    deliver(f"Altimeter Temperature: {temp_RPi}")
+    time.sleep(0.5)
     temp_RW = temp.temperature
+    deliver(f"Reaction Wheel Temperature: {temp_RW}")
 
     
 def collect_data():
     acceleration = imu.acceleration
     atitude = imu.gyro
     altitude = altimeter.altitude
-    data = f"Accel {acceleration}"
-    time.sleep(1)
+    mag = imu.magnetic
+    data = f"Acceleration {acceleration} m/s^2"
+    time.sleep(0.5)
     deliver(data)
-    data = f"alt {altitude}"
-    time.sleep(3)
+    data = f"Altitude {altitude} meters"
+    time.sleep(0.5)
     deliver(data)
-    data = f"gyro {atitude}"
-    time.sleep(3)
+    data = f"Gyro {atitude} radians/s"
+    time.sleep(0.5)
+    deliver(data)
+    data = f"Mag {atitude} uT"
+    time.sleep(0.5)
     deliver(data)
 
 
@@ -88,7 +96,13 @@ def capture_image():
 def deliver(data):
 
     xbee.send_data_broadcast(data)
-
+def servo_test():
+    RC.ccw()
+    time.sleep(5)
+    RC.cw()
+    time.sleep(5)
+    RC.off()
+    
 def activate_burnwire():
 
     burnwire.activate()
@@ -119,8 +133,13 @@ def main():
                         deliver("Done")
                     elif message == "check":
                         deliver("System is functioning :)")
+                        system_health()
                     elif message == "shutdown":
                         break
+                    elif message == "test servo":
+                        deliver("Testing Servos")
+                        servo_test()
+                        deliver("Test Complete")
                     elif message == "reboot":
                         deliver("Goodbye :(")
                         time.sleep(5)

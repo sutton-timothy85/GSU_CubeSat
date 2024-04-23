@@ -1,6 +1,7 @@
 import time
 import board
 import burnwire
+import os
 import reaction_control as RC
 import adafruit_mpl3115a2
 import adafruit_icm20x
@@ -37,20 +38,19 @@ altimeter.sealevel_pressure = 1022.5
 def reaction_control():
     RC.cw()
     time.sleep(5)
-    #For each command run raction control sequence for 10 seconds
-    # t_end = time.time() + 0
-    # while time.time() < t_end:
-    #     current_atitude = list(imu.gyro)
-    #     X = float(current_atitude[0])
-    #     Y = float(current_atitude[1])
-    #     Z = float(current_atitude[2])  # Extracting the third value (index 2) and converting to float
+    t_end = time.time() + 0
+    while time.time() < t_end:
+        current_atitude = list(imu.gyro)
+        X = float(current_atitude[0])
+        Y = float(current_atitude[1])
+        Z = float(current_atitude[2])  # Extracting the third value (index 2) and converting to float
 
-    #     if Z >= 0.2:
-    #         RC.ccw(Z_servo)
-    #     elif Z <= -0.2:
-    #         RC.cw(Z_servo)
-    #     else:
-    #         print("no correction")  
+        if Z >= 0.2:
+            RC.ccw()
+        elif Z <= -0.2:
+            RC.cw()
+        else:
+            print("no correction")  
 
 def receive(xbee_message):
 
@@ -121,6 +121,10 @@ def main():
                         deliver("System is functioning :)")
                     elif message == "shutdown":
                         break
+                    elif message == "reboot":
+                        deliver("Goodbye :(")
+                        time.sleep(5)
+                        os.system('sudo reboot')
                     else:
                         UE_warning = "Unknown Command"
                         deliver(UE_warning)

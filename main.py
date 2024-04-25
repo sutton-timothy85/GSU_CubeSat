@@ -135,6 +135,9 @@ def main():
                         deliver("System is functioning :)")
                         system_health()
                     elif message == "shutdown":
+                        deliver("Shutting Down :(")
+                        time.sleep(5)
+                        os.system('sudo shutdown')
                         break
                     elif message == "test servo":
                         deliver("Testing Servos")

@@ -16,7 +16,8 @@ def send_image(image_filename, chunk_size):
     for i in range(0, len(picture_data), chunk_size):
         chunk = picture_data[i:i + chunk_size]
         xbee.send_data_broadcast(chunk)
-        time.sleep(0.1)  # Optional: add a delay between transmissions
+        print("Chunk Sent")
+        time.sleep(1)  # Optional: add a delay between transmissions
 
 # Example usage
 if __name__ == "__main__":

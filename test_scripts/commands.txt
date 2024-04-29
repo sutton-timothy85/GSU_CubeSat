@@ -1,0 +1,1 @@
+grep cron /var/log/syslog

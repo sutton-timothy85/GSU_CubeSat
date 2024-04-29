@@ -2,7 +2,7 @@ import time
 import board
 import pwmio
 
-servo = pwmio.PWMOut(board.D18, frequency=50)
+servo = pwmio.PWMOut(board.D38, frequency=50)
 
 def servo_duty_cycle(pulse_ms, frequency=50):
     period_ms = 1.0 / frequency * 1000.0

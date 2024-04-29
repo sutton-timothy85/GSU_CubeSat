@@ -1,7 +1,7 @@
 import RPi.GPIO as GPIO
 import time
 #GPIO 22
-pin = 22
+pin = 36
 #GPIO.setmode(GPIO.BOARD)
 
 def on():
@@ -14,7 +14,7 @@ def off():
 
 def activate():
         on()
-        time.sleep(5)
+        time.sleep(10)
         off()
         time.sleep(1)
 #activate() #For manual actuation

@@ -17,22 +17,18 @@ xbee = XBeeDevice(PORT,BAUD_RATE)
 xbee.open()
 xbee.set_sync_ops_timeout(20)
 
-GPIO.setup(12, GPIO.OUT)
-
 activated = False
 
 i2c = board.I2C()
-#picam = Picamera2()
+picam = Picamera2()
 altimeter = adafruit_mpl3115a2.MPL3115A2(i2c)
 imu = adafruit_icm20x.ICM20948(i2c)
 temp = adafruit_mcp9808.MCP9808(i2c)
-#picam.start()
+picam.start()
 
 
 
 #Set parameters for operation
-
-Norm_AT = [0, 0, 0] #Placeholders
 altimeter.sealevel_pressure = 1022.5
 
 def reaction_control():
@@ -41,22 +37,22 @@ def reaction_control():
     while time.time() < t_end:
         current_atitude = list(imu.gyro)
         Z = float(current_atitude[2])  # Extracting the third value (index 2) and converting to float
-        #deliver(f"Z acceleration {Z}")
+
         if Z >= 0.2:
-            #deliver("Rotating Servo CCW")
+
             print("ccw")
             RC.ccw()
             time.sleep(0.01)
             RC.off()
 
         elif Z <= -0.2:
-            #deliver("Rotating Servo CW")
+
             print("cw")  
             RC.cw()
             time.sleep(0.01)
             RC.off()
         else:
-            #deliver("Below Reaction Threshold")
+
             print("no correction")  
 
 
@@ -86,12 +82,27 @@ def collect_data():
     time.sleep(0.5)
     deliver(data)
 
+def send_image():
+    image_filename = "image.jpg"
+    chunk_size = 100
+    # Read the picture
+    with open(image_filename, 'rb') as f:
+        picture_data = f.read()
 
+    # Transmit chunks
+    for i in range(0, len(picture_data), chunk_size):
+        chunk = picture_data[i:i + chunk_size]
+        xbee.send_data_broadcast(chunk)
+        print("Chunk Sent")
+        time.sleep(0.3)  # Delay between transmissions
 
 def capture_image():
-    f = 0 #comented to test other systems
-    #picam.capture_file("image")
-    #code for sending image here
+    
+    picam.capture_file("image.jpg")
+    deliver("Image Captured!")
+    deliver("Beginning Image Transfer in 5 seconds!")
+    time.sleep(5.5)
+    send_image()
 
 def deliver(data):
 
@@ -118,9 +129,13 @@ def main():
                     message = message.data.decode()
                     print(message)
                     if (message == "collect data"):
-                        #deliver("Collecting Data")
+                        deliver("Collecting Data")
                         collect_data()
-                        #capture_image()
+                    elif (message == "capture image"):
+                        deliver("Capturing Image!")
+                        time.sleep(2)
+                        capture_image()  
+                        deliver("done")     
                     elif (message == "burn wire"):
                             deliver("Activating Burn Wire System")
                             activate_burnwire()
@@ -132,10 +147,10 @@ def main():
                         reaction_control()
                         deliver("Done")
                     elif message == "check":
-                        deliver("System is functioning :)")
+                        deliver("System is functioning")
                         system_health()
                     elif message == "shutdown":
-                        deliver("Shutting Down :(")
+                        deliver("Shutting Down")
                         time.sleep(5)
                         os.system('sudo shutdown')
                         break
@@ -144,7 +159,7 @@ def main():
                         servo_test()
                         deliver("Test Complete")
                     elif message == "reboot":
-                        deliver("Goodbye :(")
+                        deliver("Goodbye")
                         time.sleep(5)
                         os.system('sudo reboot')
                     else:

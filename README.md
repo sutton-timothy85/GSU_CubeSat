@@ -1,6 +1,4 @@
-Georgia Southern University's CubeSat senior design team. Spring 2024
-cubesat branch is dedicated to development of cubesat OBC software development. 
-<<<<<<< HEAD
-=======
+Georgia Southern University's CubeSat Spring 2024 senior design team. 
+Cubesat branch is dedicated to development of cubesat OBC software.
 
->>>>>>> 2c64d2387abaecb6fc16dfdf4fec1366df08abea
+main.py is the central script that ties everything together. 
